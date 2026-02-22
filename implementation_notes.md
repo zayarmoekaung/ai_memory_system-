@@ -102,12 +102,12 @@ This document details the step-by-step implementation plan for the AI Agent Memo
 
 *   **Purpose:** Provide a RESTful API for external services or agents to interact with the memory system.
 *   **Implementation Steps:**
-    1.  [ ] Create `src/api/main.py` file.
-    2.  [ ] Import `FastAPI` and `RetrievalManager`.
-    3.  [ ] Define API endpoints:
+    1.  [x] Create `src/api/main.py` file.
+    2.  [x] Import `FastAPI` and `RetrievalManager`.
+    3.  [x] Define API endpoints:
         *   `/ingest_memory` (POST): To add new memories.
         *   `/retrieve_memories` (POST): To query and retrieve relevant memories.
-    4.  [ ] Use Pydantic models for request and response body validation.
+    4.  [x] Use Pydantic models for request and response body validation.
 
 ## 8. Examples (`examples/`)
 
