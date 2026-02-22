@@ -16,15 +16,15 @@ This document details the step-by-step implementation plan for the AI Agent Memo
 *   **Purpose:** Centralize all configurable parameters, such as embedding model names, token limits, weighting coefficients for retrieval, and ChromaDB settings, for easy management and access.
 *   **Implementation Steps:**
     1.  [x] Create `config/settings.py` file.
-    2.  [ ] Define a `Settings` class using Pydantic for robust validation of configuration parameters.
-    3.  [ ] Load environment variables using `python-dotenv` for sensitive or environment-specific settings.
-    4.  [ ] Include parameters for:
+    2.  [x] Define a `Settings` class using Pydantic for robust validation of configuration parameters.
+    3.  [x] Load environment variables using `python-dotenv` for sensitive or environment-specific settings.
+    4.  [x] Include parameters for:
         *   `EMBEDDING_MODEL_NAME`: (e.g., `all-MiniLM-L6-v2`)
         *   `CHROMA_DB_PATH`: Path for ChromaDB persistence (e.g., `./data/chroma_db`)
         *   `MAX_CONTEXT_TOKENS`: Maximum tokens for the main LLM context window.
         *   `RECENCY_WEIGHT`, `IMPORTANCE_WEIGHT`, `TASK_RELATEDNESS_WEIGHT`: Coefficients for weighted retrieval.
         *   `CHUNK_SIZE_SENTENCES`, `CHUNK_OVERLAP_SENTENCES`: For memory chunking.
-    5.  [ ] Provide methods to easily access these settings.
+    5.  [x] Provide methods to easily access these settings.
 
 ## 3. Embedding Manager (`src/core/embedding_manager.py`)
 
