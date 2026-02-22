@@ -79,14 +79,14 @@ This document details the step-by-step implementation plan for the AI Agent Memo
 *   **Purpose:** Orchestrate the retrieval process, combining vector similarity with weighted scoring based on recency, importance, and task-relatedness.
 *   **Implementation Steps:**
     1.  [x] Create `src/core/retrieval_manager.py` file.
-    2.  [ ] Import `MemoryStore`, `EmbeddingManager`, `ChunkOptimizer`, and `Settings`.
-    3.  [ ] Define a `RetrievalManager` class.
-    4.  [ ] In the constructor, initialize instances of `MemoryStore`, `EmbeddingManager`, and `ChunkOptimizer`.
-    5.  [ ] Implement `ingest_memory(raw_text: str, importance_score: float = 0.5, source_id: str = "agent_observation")`:
+    2.  [x] Import `MemoryStore`, `EmbeddingManager`, `ChunkOptimizer`, and `Settings`.
+    3.  [x] Define a `RetrievalManager` class.
+    4.  [x] In the constructor, initialize instances of `MemoryStore`, `EmbeddingManager`, and `ChunkOptimizer`.
+    5.  [x] Implement `ingest_memory(raw_text: str, importance_score: float = 0.5, source_id: str = "agent_observation")`:
         *   Takes raw text, chunks it using `ChunkOptimizer`.
         *   Generates embeddings for each chunk using `EmbeddingManager`.
         *   Adds each chunk to `MemoryStore` with metadata (timestamp, importance, etc.).
-    6.  [ ] Implement `retrieve_relevant_memories(query: str, n_results: int = 10) -> list[dict]`:
+    6.  [x] Implement `retrieve_relevant_memories(query: str, n_results: int = 10) -> list[dict]`:
         *   Generates embedding for the `query` using `EmbeddingManager`.
         *   Performs initial similarity search using `MemoryStore`.
         *   Applies weighted scoring:
