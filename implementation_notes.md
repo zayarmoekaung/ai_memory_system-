@@ -121,9 +121,9 @@ This document details the step-by-step implementation plan for the AI Agent Memo
 *   **Purpose:** Provide a clear overview of the project, setup instructions, and usage examples.
 *   **Implementation Steps:**
     1.  [x] Create `README.md` file.
-    2.  [ ] Describe the project's goal.
-    3.  [ ] Include setup instructions (virtual environment, `pip install`).
-    4.  [ ] Explain how to run examples.
-    5.  [ ] Detail the project structure and key modules.
-    6.  [ ] Mention chosen technologies and their purpose.
-    7.  [ ] Provide a basic usage example.
+    2.  [x] Describe the project's goal.
+    3.  [x] Include setup instructions (virtual environment, `pip install`).
+    4.  [x] Explain how to run examples.
+    5.  [x] Detail the project structure and key modules.
+    6.  [x] Mention chosen technologies and their purpose.
+    7.  [x] Provide a basic usage example.
