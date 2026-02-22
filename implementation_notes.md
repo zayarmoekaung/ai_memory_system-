@@ -31,11 +31,11 @@ This document details the step-by-step implementation plan for the AI Agent Memo
 *   **Purpose:** Handle the loading of the chosen embedding model and the conversion of text into high-dimensional vector representations.
 *   **Implementation Steps:**
     1.  [x] Create `src/core/embedding_manager.py` file.
-    2.  [ ] Import `SentenceTransformer` from `sentence_transformers`.
-    3.  [ ] Define an `EmbeddingManager` class.
-    4.  [ ] In the constructor, load the embedding model using `Settings.EMBEDDING_MODEL_NAME`.
-    5.  [ ] Implement a `get_embedding(text: str) -> list[float]` method that takes text and returns its vector embedding.
-    6.  [ ] Implement a `get_tokenizer()` method to return the model's tokenizer for token counting.
+    2.  [x] Import `SentenceTransformer` from `sentence_transformers`.
+    3.  [x] Define an `EmbeddingManager` class.
+    4.  [x] In the constructor, load the embedding model using `Settings.EMBEDDING_MODEL_NAME`.
+    5.  [x] Implement a `get_embedding(text: str) -> list[float]` method that takes text and returns its vector embedding.
+    6.  [x] Implement a `get_tokenizer()` method to return the model's tokenizer for token counting.
 
 ## 4. Memory Store (`src/core/memory_store.py`)
 
