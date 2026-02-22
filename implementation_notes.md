@@ -42,18 +42,18 @@ This document details the step-by-step implementation plan for the AI Agent Memo
 *   **Purpose:** Manage the storage and retrieval of memory chunks and their associated metadata using ChromaDB.
 *   **Implementation Steps:**
     1.  [x] Create `src/core/memory_store.py` file.
-    2.  [ ] Import `chromadb` and `tiktoken`.
-    3.  [ ] Define a `MemoryStore` class.
-    4.  [ ] In the constructor:
+    2.  [x] Import `chromadb` and `tiktoken`.
+    3.  [x] Define a `MemoryStore` class.
+    4.  [x] In the constructor:
         *   Initialize ChromaDB client, specifying persistence path (`Settings.CHROMA_DB_PATH`).
         *   Get or create a ChromaDB collection for memories.
-    5.  [ ] Implement `add_memory_chunk(chunk_id: str, content: str, embedding: list[float], metadata: dict)`:
+    5.  [x] Implement `add_memory_chunk(chunk_id: str, content: str, embedding: list[float], metadata: dict)`:
         *   Adds a single memory chunk to the ChromaDB collection.
         *   Metadata should include `timestamp`, `importance_score`, `source_id`, `original_text_start_index`, etc.
-    6.  [ ] Implement `search_memories(query_embedding: list[float], n_results: int, min_distance: float = 0.5) -> list[dict]`:
+    6.  [x] Implement `search_memories(query_embedding: list[float], n_results: int, min_distance: float = 0.5) -> list[dict]`:
         *   Performs a similarity search in ChromaDB.
         *   Returns relevant memory chunks and their metadata.
-    7.  [ ] Implement `get_memory_by_id(chunk_id: str) -> dict`:
+    7.  [x] Implement `get_memory_by_id(chunk_id: str) -> dict`:
         *   Retrieves a specific memory chunk by its ID.
 
 ## 5. Chunk Optimizer (`src/core/chunk_optimizer.py`)
