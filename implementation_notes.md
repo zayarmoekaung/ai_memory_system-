@@ -61,14 +61,14 @@ This document details the step-by-step implementation plan for the AI Agent Memo
 *   **Purpose:** Segment raw memories into meaningful chunks, accurately count tokens, and dynamically select/truncate chunks to fit within context window limits.
 *   **Implementation Steps:**
     1.  [x] Create `src/core/chunk_optimizer.py` file.
-    2.  [ ] Import `tiktoken` and `Settings`.
-    3.  [ ] Define a `ChunkOptimizer` class.
-    4.  [ ] In the constructor, initialize the tokenizer using `tiktoken.encoding_for_model("gpt-4")` or the `EmbeddingManager`'s tokenizer.
-    5.  [ ] Implement `chunk_text(text: str) -> list[str]`:
+    2.  [x] Import `tiktoken` and `Settings`.
+    3.  [x] Define a `ChunkOptimizer` class.
+    4.  [x] In the constructor, initialize the tokenizer using `tiktoken.encoding_for_model("gpt-4")` or the `EmbeddingManager`'s tokenizer.
+    5.  [x] Implement `chunk_text(text: str) -> list[str]`:
         *   Segments raw text into smaller, meaningful chunks (e.g., by sentences or short paragraphs), using parameters from `Settings`.
-    6.  [ ] Implement `count_tokens(text: str) -> int`:
+    6.  [x] Implement `count_tokens(text: str) -> int`:
         *   Uses the tokenizer to accurately count tokens for a given text.
-    7.  [ ] Implement `optimize_chunks_for_context(chunks: list[dict], query_tokens: int) -> list[dict]`:
+    7.  [x] Implement `optimize_chunks_for_context(chunks: list[dict], query_tokens: int) -> list[dict]`:
         *   Takes a list of retrieved memory chunks (with their content and scores) and the token count of the query.
         *   Iteratively selects the highest-scoring chunks until `Settings.MAX_CONTEXT_TOKENS` is approached.
         *   If necessary, implements truncation strategies for individual chunks (e.g., keeping only the most relevant sentences) while respecting linguistic boundaries.
