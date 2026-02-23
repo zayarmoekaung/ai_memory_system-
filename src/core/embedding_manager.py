@@ -1,7 +1,7 @@
 from sentence_transformers import SentenceTransformer
 from typing import List
 import os
-from ..config.settings import settings
+from config.settings import settings
 
 class EmbeddingManager:
     def __init__(self):

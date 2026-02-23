@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from .memory_store import MemoryStore
 from .embedding_manager import EmbeddingManager
 from .chunk_optimizer import ChunkOptimizer
-from ..config.settings import settings
+from  config.settings import settings
 
 class RetrievalManager:
     def __init__(self):

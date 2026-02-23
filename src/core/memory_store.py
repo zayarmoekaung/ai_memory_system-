@@ -1,6 +1,6 @@
 import chromadb
 from typing import List, Dict, Any
-from ..config.settings import settings
+from config.settings import settings
 
 class MemoryStore:
     def __init__(self):

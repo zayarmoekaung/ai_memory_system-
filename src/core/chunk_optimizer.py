@@ -1,6 +1,6 @@
 import tiktoken
 from typing import List, Dict, Any
-from ..config.settings import settings
+from config.settings import settings
 from nltk.tokenize import sent_tokenize
 
 # Ensure NLTK data is available (run this once if not already downloaded)

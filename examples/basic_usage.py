@@ -1,4 +1,5 @@
-from ai_memory_system.src.core.retrieval_manager import RetrievalManager
+import project_path
+from src.core.retrieval_manager import RetrievalManager
 import time
 
 def run_basic_usage():

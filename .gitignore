@@ -75,3 +75,6 @@ Thumbs.db
 
 # local settings
 local_settings.py
+data/chroma_db/
+data/*
+data/

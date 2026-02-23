@@ -1,4 +1,5 @@
-from ai_memory_system.src.core.retrieval_manager import RetrievalManager
+import project_path
+from src.core.retrieval_manager import RetrievalManager
 import os
 
 def run_interactive_test():
@@ -59,7 +60,7 @@ def run_interactive_test():
 
 if __name__ == "__main__":
     # Ensure the data directory exists for ChromaDB persistence
-    from ai_memory_system.config.settings import settings
+    from config.settings import settings
     settings.CHROMA_DB_PATH.mkdir(parents=True, exist_ok=True)
     
     # NLTK punkt tokenizer data might need to be downloaded for sent_tokenize in ChunkOptimizer
