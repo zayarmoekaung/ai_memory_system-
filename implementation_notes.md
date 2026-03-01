@@ -90,7 +90,7 @@ This document details the step-by-step implementation plan for the AI Agent Memo
     4.  [x] In the constructor, initialize instances of `MemoryStore`, `EmbeddingManager`, `ChunkOptimizer`, `WorkingMemory`, `MemoryConsolidation`, and `AssociativeNetwork`. Set the tokenizer for `ChunkOptimizer`.
     5.  [x] Implement `ingest_memory(raw_text: str, importance_score: float = 0.5, source_id: str = "agent_observation")`:
         - Adds raw text to `WorkingMemory`.
-        - Chunks it using `ChunkOptimizer`.
+        - Chunks it using `ChunkOptimizer`.Т
         - Generates embeddings for each chunk using `EmbeddingManager`.
         - Extracts enhanced metadata (`emotional_valence`, `associated_entities`, `context_tags`) using simple heuristic placeholder functions.
         - Adds each chunk to `MemoryStore` with metadata.
@@ -144,10 +144,4 @@ This document details the step-by-step implementation plan for the AI Agent Memo
     1.  [x] Create `src/core/working_memory.py` for the Sensory Input Buffer.
     2.  [x] Create `src/core/memory_consolidation.py` for the Memory Consolidation background process (conceptual placeholder).
     3.  [x] Create `src/core/associative_network.py` for the Associative Network/Knowledge Graph.
-    4.  [x] Update `src/core/__init__.py` to include the new modules.
-    5.  [x] Update `config/settings.py` with new settings (`WORKING_MEMORY_CAPACITY`, NLP models, decay rates, associative collection name).
-    6.  [x] Update `src/core/memory_store.py` to prepare for richer metadata and add associative collection.
-    7.  [x] Update `src/core/retrieval_manager.py` to integrate new components and flows for ingestion and retrieval.
-    8.  [x] Update `src/core/chunk_optimizer.py` to reflect enhancements for dynamic synthesis (conceptual placeholder).
-    9.  [ ] Update `README.md` with information about the human-like memory prototype.
-    10. [ ] Update `Shion.md` with details of this prototype implementation.
+    4.  [x] Update `src/core/__init__.py` to include the new modules.\n    5.  [x] Update `config/settings.py` with new settings (`WORKING_MEMORY_CAPACITY`, NLP models, decay rates, associative collection name).\n    6.  [x] Update `src/core/memory_store.py` to prepare for richer metadata and add associative collection.\n    7.  [x] Update `src/core/retrieval_manager.py` to integrate new components and flows for ingestion and retrieval.\n    8.  [x] Update `src/core/chunk_optimizer.py` to reflect enhancements for dynamic synthesis (conceptual placeholder).\n    9.  [x] Update `README.md` with information about the human-like memory prototype.\n    10. [x] Update `Shion.md` with details of this prototype implementation.
