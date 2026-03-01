@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-from typing import List, Optional
+from typing import List, Optional, Any
 from ..core.retrieval_manager import RetrievalManager
 
 # Initialize FastAPI app
@@ -26,7 +26,7 @@ class RetrieveMemoriesRequest(BaseModel):
 class MemoryChunkResponse(BaseModel):
     id: str
     content: str
-    metadata: Dict[str, Any]
+    metadata: dict[str, Any]
     score: float
     similarity: float
     recency: float

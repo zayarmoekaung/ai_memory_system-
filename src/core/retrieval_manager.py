@@ -9,7 +9,7 @@ from .chunk_optimizer import ChunkOptimizer
 from .working_memory import WorkingMemory
 from .memory_consolidation import MemoryConsolidation
 from .associative_network import AssociativeNetwork
-from ..config.settings import settings # Updated import path
+from config.settings import settings # Updated import path
 
 # Placeholder for NLTK if not globally downloaded
 # import nltk
@@ -37,7 +37,7 @@ def _simple_entity_extraction(text: str) -> List[str]:
     words = text.split()
     entities = set()
     for word in words:
-        cleaned_word = word.strip(',.!?;:"'')
+        cleaned_word = word.strip("',.!?;:""''")
         if cleaned_word and cleaned_word[0].isupper() and cleaned_word.lower() not in ["the", "a", "an", "and", "is", "are", "was", "were", "i", "you", "he", "she", "it", "we", "they", "this", "that", "for", "on", "in", "at", "with", "from", "by"]:
             entities.add(cleaned_word)
     return list(entities)

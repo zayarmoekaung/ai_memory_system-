@@ -45,5 +45,4 @@ class WorkingMemory:
         return len(self.buffer)
 
     def __repr__(self):
-        return f"WorkingMemory(capacity={self.buffer.maxlen}, size={len(self.buffer)})
-Items: {list(self.buffer)}"
+        return f"WorkingMemory(capacity={self.buffer.maxlen}, size={len(self.buffer)})Items: {list(self.buffer)}"
