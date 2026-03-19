@@ -168,7 +168,7 @@ This document details the step-by-step implementation plan for the AI Agent Memo
   - Transformer-based models (DistilBERT-sentiment, more accurate but slower)
   - Hybrid approach: VADER for speed, transformers for complex cases
 - **Implementation Steps:**
-  - Add `vaderSentiment` or `transformers` to requirements.txt
+  - [x] Add `vaderSentiment` to requirements.txt
   - Create `SentimentAnalyzer` class in `src/core/`
   - Update `_simple_sentiment_analysis` to use real model
   - Add configuration options for model selection
