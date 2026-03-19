@@ -181,10 +181,10 @@ This document details the step-by-step implementation plan for the AI Agent Memo
   - HuggingFace NER models (more flexible, better for domain-specific)
   - Custom fine-tuned model for AI/agent domain
 - **Implementation Steps:**
-  - Add `spacy` to requirements.txt, download en_core_web_sm
-  - Create `EntityExtractor` class in `src/core/`
-  - Update `_simple_entity_extraction` to use spaCy NER
-  - Add entity type filtering (PERSON, ORG, GPE, etc.)
+  - [x] Add `spacy` to requirements.txt, download en_core_web_sm
+  - [x] Create `EntityExtractor` class in `src/core/`
+  - [x] Update `_simple_entity_extraction` to use real model
+  - [x] Add entity type filtering (PERSON, ORG, GPE, etc.)
 
 **3. Context Tag Extraction (`_simple_context_tag_extraction`)**
 - **Current:** Hardcoded keyword matching for basic categories
