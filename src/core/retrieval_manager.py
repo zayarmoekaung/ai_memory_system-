@@ -102,12 +102,14 @@ class RetrievalManager:
                 "importance_score": importance_score,
                 "source_id": source_id,
                 "original_text_start_index": raw_text.find(chunk_content), # Simple approach, can be refined
-                "associated_entities": associated_entities, # Enhanced metadata
                 "emotional_valence": emotional_valence, # Enhanced metadata
                 "vividness_score": 0.5, # Default, will be dynamically learned/adjusted (Enhanced metadata)
-                "context_tags": context_tags, # Enhanced metadata
                 "event_sequence_id": event_sequence_id # Enhanced metadata
             }
+            if associated_entities:
+                metadata["associated_entities"] = associated_entities
+            if context_tags:
+                metadata["context_tags"] = context_tags
             self.memory_store.add_memory_chunk(chunk_id, chunk_content, embedding, metadata)
             
             # 3. Update Associative Network

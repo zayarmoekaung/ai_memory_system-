@@ -1,14 +1,18 @@
 import project_path
 from src.core.retrieval_manager import RetrievalManager
 import time
+from config.settings import settings
 
 def run_basic_usage():
     print("Initializing RetrievalManager...")
+    # Ensure data directory exists
+    settings.CHROMA_DB_PATH.mkdir(parents=True, exist_ok=True)
     retrieval_manager = RetrievalManager()
 
     # Optional: Clear existing memories for a clean test run
-    # print("Deleting existing memory collection...")
-    # retrieval_manager.memory_store.delete_collection()
+    # print("Deleting existing memory collections...")
+    # retrieval_manager.memory_store.client.delete_collection(settings.CHROMA_COLLECTION_NAME)
+    # retrieval_manager.memory_store.client.delete_collection(settings.CHROMA_ASSOCIATIVE_COLLECTION_NAME)
 
     print("\n--- Ingesting Memories ---")
     memories_to_ingest = [
@@ -42,7 +46,7 @@ def run_basic_usage():
             print("  Relevant memories found:")
             for i, mem in enumerate(relevant_memories):
                 content_preview = mem['content'][:70] + "..." if len(mem['content']) > 70 else mem['content']
-                print(f"    {i+1}. (Score: {mem['score']:.4f}, Source: {mem['metadata'].get('source_id', 'N/A')}) {content_preview}")
+                print(f"    {i+1}. (Score: {mem['score']:.4f}, Source: {mem['metadata'].get('source_id', 'N/A')}, Recency: {mem.get('recency', 0):.2f}, Importance: {mem.get('importance', 0):.2f}, Emotional: {mem.get('emotional_saliency', 0):.2f}, Vividness: {mem.get('vividness', 0):.2f}, Assoc: {mem.get('associative_strength', 0):.2f}) {content_preview}")
         else:
             print("  No relevant memories found.")
 

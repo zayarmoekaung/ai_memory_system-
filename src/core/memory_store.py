@@ -29,6 +29,8 @@ class MemoryStore:
                                   context_tags, event_sequence_id, original_text_start_index).
         """
         try:
+            # Ensure collection exists before adding
+            self.collection = self.client.get_or_create_collection(name=settings.CHROMA_COLLECTION_NAME)
             self.collection.add(
                 documents=[content],
                 embeddings=[embedding],
@@ -92,6 +94,8 @@ class MemoryStore:
                             or an empty dictionary if not found.
         """
         try:
+            # Ensure collection exists before retrieving
+            self.collection = self.client.get_or_create_collection(name=settings.CHROMA_COLLECTION_NAME)
             result = self.collection.get(ids=[chunk_id], include=['documents', 'embeddings', 'metadatas'])
             if result and result['ids'] and result['ids'][0]:
                 return {
