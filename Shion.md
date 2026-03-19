@@ -28,7 +28,7 @@ During the prototype phase for the human-like memory system, my contributions in
     - `src/core/associative_network.py`: Implemented a lightweight graph structure for managing explicit links between memory chunks and entities, using `networkx`.
 - **Configuration Updates (`config/settings.py`):** Expanded `Settings` to include new parameters relevant to human-like memory (e.g., working memory capacity, new weighting coefficients for emotional salience, vividness, associative strength, NLP model placeholders).
 - **Memory Store Enhancements (`src/core/memory_store.py`):** Modified to create and interact with a separate ChromaDB collection for `ai_associative_links` to support the associative network, and updated docstrings for richer metadata.
-- **Retrieval Manager Redesign (`src/core/retrieval_manager.py`):** Significantly updated to integrate `WorkingMemory`, `MemoryConsolidation`, and `AssociativeNetwork`. Enhanced `ingest_memory` for richer metadata extraction (using simple heuristics for prototype) and associative linking. Redesigned `retrieve_relevant_memories` to prioritize working memory, leverage associative spreading, and apply a refined weighted scoring incorporating all new metadata factors.
+- - **Retrieval Manager Redesign (`src/core/retrieval_manager.py`):** Significantly updated to integrate `WorkingMemory`, `MemoryConsolidation`, and `AssociativeNetwork`. Enhanced `ingest_memory` for richer metadata extraction (using simple heuristics for prototype) and associative linking. Redesigned `retrieve_relevant_memories` to prioritize working memory, leverage associative spreading, and apply a refined weighted scoring incorporating all new metadata factors.
 - **Chunk Optimizer Refinements (`src/core/chunk_optimizer.py`):** Corrected import path and added a conceptual placeholder for dynamic synthesis/summarization within context optimization.
 - **Documentation Updates:** Updated `README.md` and `implementation_notes.md` to reflect the new prototype components and changes.
 
@@ -47,7 +47,7 @@ For any agent collaborating on this project, please adhere to the following guid
 
 4.  **Configuration:** Utilize `config/settings.py` for all configurable parameters. If adding new configuration, update `settings.py` and document it. Be aware of the new prototype-specific settings.
 
-5.  **Environment Setup:** Always work within a virtual environment. Install dependencies via `pip install -r requirements.txt`. Remember to download `nltk`\'s `punkt` data if running `ChunkOptimizer` examples directly. `networkx` is also a new dependency for the associative network.
+5.  **Environment Setup:** Always work within a virtual environment. Install dependencies via `pip install -r requirements.txt`. Remember to download `nltk`'s `punkt` data if running `ChunkOptimizer` examples directly. `networkx` is also a new dependency for the associative network.
 
 6.  **Git Workflow:**
     - Before starting new work, always `git pull origin feature/human-like-memory-prototype` to get the latest changes from this branch.
@@ -69,4 +69,5 @@ To ensure all commits from ShionAide use the correct identity, the local Git con
 
 This was verified through a test commit and push. Collaborators can check the commit history on GitHub to confirm. All further commits from ShionAide within this project will use these credentials.
 
-This memory system is a foundational component for advanced AI agent capabilities. Let\'s continue to build it with precision and collaboration.
+This memory system is a foundational component for advanced AI agent capabilities. Let's continue to build it with precision and collaboration.
+  
