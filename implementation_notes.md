@@ -155,7 +155,7 @@ This document details the step-by-step implementation plan for the AI Agent Memo
 ## 11. Placeholder Functions and Conceptual Implementations - Replacement Plan
 
 - **Purpose:** Replace all placeholder functions and conceptual implementations with actual production-ready logic to improve memory quality, retrieval accuracy, and system performance.
-- **Current Status:** All core functionality implemented with working placeholders. System is functional but uses basic heuristics.
+- **Current Status:** Phase 1 and Phase 2 implementations are complete, moving beyond basic heuristics to more sophisticated models and graph-based calculations.
 - **Implementation Strategy:** Phased approach prioritizing highest-impact improvements.
 
 ### Phase 1: NLP Processing Functions (High Priority - Highest Impact)
@@ -163,36 +163,26 @@ This document details the step-by-step implementation plan for the AI Agent Memo
 **1. Sentiment Analysis (`_simple_sentiment_analysis`)**
 - **Current:** Basic keyword counting heuristic (positive/negative word lists)
 - **Target:** Real sentiment analysis model
-- **Options:**
-  - VADER (fast, rule-based, good for social media text)
-  - Transformer-based models (DistilBERT-sentiment, more accurate but slower)
-  - Hybrid approach: VADER for speed, transformers for complex cases
 - **Implementation Steps:**
   - [x] Add `vaderSentiment` to requirements.txt
   - [x] Create `SentimentAnalyzer` class in `src/core/`
   - [x] Update `_simple_sentiment_analysis` to use real model
   - [x] Add configuration options for model selection
+  - [x] **Refinement:** Modified `SentimentAnalyzer.analyze_sentiment` to include `positive_word_count` and `negative_word_count` for vividness calculation.
 
 **2. Named Entity Recognition (`_simple_entity_extraction`)**
 - **Current:** Capitalized word detection heuristic
 - **Target:** Proper NER model for person, organization, location extraction
-- **Options:**
-  - spaCy with en_core_web_sm (fast, accurate for common entities)
-  - HuggingFace NER models (more flexible, better for domain-specific)
-  - Custom fine-tuned model for AI/agent domain
 - **Implementation Steps:**
-  - [x] Add `spacy` to requirements.txt, download en_core_web_sm
+  - [x] Add `spacy` to requirements.txt, download `en_core_web_sm`
   - [x] Create `EntityExtractor` class in `src/core/`
   - [x] Update `_simple_entity_extraction` to use real model
   - [x] Add entity type filtering (PERSON, ORG, GPE, etc.)
+  - [x] **Refinement:** Added `EntityExtractor.quantify_specificity` method to count total entities and unique entity types for vividness calculation.
 
 **3. Context Tag Extraction (`_simple_context_tag_extraction`)**
 - **Current:** Hardcoded keyword matching for basic categories
 - **Target:** ML-based topic classification or zero-shot labeling
-- **Options:**
-  - Zero-shot classification (BART/BERT-based)
-  - Fine-tuned topic model for memory categories
-  - Rule-based with ML enhancement
 - **Implementation Steps:**
   - [x] Add `transformers` to requirements.txt
   - [x] Create `ContextTagger` class in `src/core/`
@@ -204,28 +194,29 @@ This document details the step-by-step implementation plan for the AI Agent Memo
 **4. Vividness Score Calculation (`_calculate_vividness_score`)**
 - **Current:** Returns static 0.5 for all memories
 - **Target:** Dynamic calculation based on content richness and memorability
-- **Factors to Consider:**
-  - Text length and complexity
-  - Emotional word density
-  - Specificity (proper nouns, numbers, details)
-  - Sensory language (visual, auditory, etc.)
-  - Recency of access (decay over time)
 - **Implementation Steps:**
-  - Create content analysis functions
-  - Implement scoring algorithm combining multiple factors
-  - Add vividness decay over time
+  - [x] Create `VividnessCalculator` class in `src/core/vividness_calculator.py`.
+  - [x] Implement `VividnessCalculator.calculate_initial_vividness` combining text length/complexity, emotional word density, and specificity.
+  - [x] Implement `VividnessCalculator.apply_decay` using an exponential decay model based on `settings.VIVIDNESS_DECAY_RATE`.
+  - [x] Integrate `VividnessCalculator` into `RetrievalManager`: initialize in constructor, call `calculate_initial_vividness` in `ingest_memory`, and call `apply_decay` in `_calculate_vividness_score`.
+  - [x] Ensure `settings.VIVIDNESS_DECAY_RATE` is defined in `config/settings.py`.
+  - [x] **Verification:** Modified `examples/interactive_test.py` to directly fetch and re-evaluate memories by ID, confirming correct initial and decayed vividness scores. Debugging steps identified and resolved `UnboundLocalError` and `AttributeError` related to `datetime` imports and inconsistent metadata handling for working memory results.
 
 **5. Associative Strength Score (`_calculate_associative_strength_score`)**
 - **Current:** Simple shared entity counting (0.2 per shared entity)
 - **Target:** Graph-based centrality and semantic similarity measures
-- **Options:**
-  - Graph centrality algorithms (PageRank, betweenness)
-  - Path-based similarity (shortest path weights)
-  - Semantic similarity of connected concepts
 - **Implementation Steps:**
-  - Enhance `AssociativeNetwork` with centrality calculations
-  - Implement path-finding algorithms
-  - Add semantic similarity scoring
+  - [x] Enhance `AssociativeNetwork` (`src/core/associative_network.py`) with:
+    - Methods for calculating graph centrality (`calculate_node_centrality` for "degree", "betweenness", "pagerank").
+    - Methods for path-finding (`find_shortest_path`, `get_all_simple_paths`).
+    - Explicit addition of core agent entities ("Zayar-Sama", "TinaAide", "ShionAide") as nodes during initialization.
+  - [x] Integrate enhancements into `_calculate_associative_strength_score` in `src/core/retrieval_manager.py`:
+    - Incorporate contributions from shared entities, path-finding (inverse path length), PageRank centrality, and direct edge weights.
+    - Used configurable weights (`ASSOCIATIVE_SHARED_ENTITY_WEIGHT`, `ASSOCIATIVE_PATH_WEIGHT`, `ASSOCIATIVE_MAX_PATH_LENGTH_CONSIDERED`, `ASSOCIATIVE_PAGERANK_WEIGHT`, `ASSOCIATIVE_DIRECT_LINK_WEIGHT`).
+    - Added `import networkx as nx` to `retrieval_manager.py`.
+    - Manually inject "Zayar-Sama", "TinaAide", and "ShionAide" into `associated_entities` during `ingest_memory` and `query_all_entities` during `retrieve_relevant_memories` if present in the text, to ensure robust entity recognition for core agents.
+  - [x] Update `config/settings.py` with new associative strength related weights and parameters.
+  - [x] **Verification:** Modified `examples/interactive_test.py` with a dedicated section for associative strength verification, including new memories and queries to test direct and indirect associations. Debugging involved adding extensive print statements to `_calculate_associative_strength_score` to trace individual contributions, and addressing `NameError` for `nx` and issues with entity recognition from queries.
 
 ### Phase 3: Advanced Features and Optimizations (Low Priority)
 

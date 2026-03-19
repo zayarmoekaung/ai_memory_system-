@@ -40,12 +40,19 @@ class Settings(BaseSettings):
     SENTIMENT_ANALYZER_MODEL: str = "vader" # For vaderSentiment library
     SENTIMENT_MODEL_NAME: str = "distilbert-base-uncased-sentiment" # Example sentiment model
     NER_MODEL_NAME: str = "en_core_web_sm" # For spaCy
-    RELEVANT_ENTITY_TYPES: list[str] = ["PERSON", "ORG", "GPE", "LOC", "PRODUCT", "EVENT"] # Default entity types for extraction
+    RELEVANT_ENTITY_TYPES: list[str] = ["PERSON", "ORG", "GPE", "LOC", "PRODUCT", "EVENT", "NORP", "FAC", "DATE", "TIME", "MONEY", "QUANTITY", "ORDINAL", "CARDINAL"] # Expanded entity types for extraction
     ENTITY_EXTRACTION_MODEL_NAME: str = "dslim/bert-base-NER" # Example NER model
     
     # Decay rates for dynamic scores (conceptual, for future tuning)
     VIVIDNESS_DECAY_RATE: float = 0.01 # How quickly vividness fades over time
     ASSOCIATIVE_STRENGTH_DECAY_RATE: float = 0.05 # How quickly associative links weaken if not reinforced
+    
+    # Associative Strength Scoring Weights (new)
+    ASSOCIATIVE_SHARED_ENTITY_WEIGHT: float = 0.3 # Weight for shared entities between chunk and query
+    ASSOCIATIVE_PATH_WEIGHT: float = 0.4 # Weight for path-finding contribution
+    ASSOCIATIVE_MAX_PATH_LENGTH_CONSIDERED: int = 3 # Max path length to consider for scoring
+    ASSOCIATIVE_PAGERANK_WEIGHT: float = 0.2 # Weight for PageRank centrality contribution
+    ASSOCIATIVE_DIRECT_LINK_WEIGHT: float = 0.1 # Weight for direct links in the graph
 
     # Optional: API Settings (if FastAPI is used)
     API_HOST: str = "0.0.0.0"

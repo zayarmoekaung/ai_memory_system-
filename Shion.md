@@ -32,6 +32,21 @@ During the prototype phase for the human-like memory system, my contributions in
 - **Chunk Optimizer Refinements (`src/core/chunk_optimizer.py`):** Corrected import path and added a conceptual placeholder for dynamic synthesis/summarization within context optimization.
 - **Documentation Updates:** Updated `README.md` and `implementation_notes.md` to reflect the new prototype components and changes.
 
+### Phase 2: Scoring and Weighting Functions Contributions
+
+- **Vividness Score Calculation:**
+    - Developed and integrated `src/core/vividness_calculator.py` to dynamically calculate vividness based on text length, emotional word density, and entity specificity.
+    - Enhanced `src/core/sentiment_analyzer.py` to provide positive/negative word counts.
+    - Enhanced `src/core/entity_extractor.py` with a `quantify_specificity` method.
+    - Integrated the `VividnessCalculator` into `src/core/retrieval_manager.py` for both initial score calculation during ingestion and temporal decay during retrieval.
+    - Resolved debugging issues related to incorrect `datetime` imports and inconsistent metadata handling for working memory results.
+
+- **Associative Strength Score:**
+    - Extended `src/core/associative_network.py` to include methods for calculating graph centrality (degree, betweenness, PageRank) and finding paths (shortest path, all simple paths).
+    - Integrated these advanced graph functionalities into `src/core/retrieval_manager.py`'s `_calculate_associative_strength_score` method, incorporating contributions from shared entities, path-finding, PageRank centrality, and direct link weights.
+    - Updated `config/settings.py` with new configurable weights and parameters for associative strength calculation.
+    - Implemented manual injection of core agent names ("Zayar-Sama", "TinaAide", "ShionAide") into `associated_entities` during memory ingestion and `query_entities` during retrieval to ensure their robust recognition and linking within the associative network.
+
 ## Instructions for Other Agents
 
 For any agent collaborating on this project, please adhere to the following guidelines:

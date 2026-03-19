@@ -31,6 +31,7 @@ class MemoryStore:
         try:
             # Ensure collection exists before adding
             self.collection = self.client.get_or_create_collection(name=settings.CHROMA_COLLECTION_NAME)
+            print(f"  [DEBUG][MemoryStore] Adding chunk {chunk_id} with metadata: {metadata}")
             self.collection.add(
                 documents=[content],
                 embeddings=[embedding],
@@ -70,11 +71,13 @@ class MemoryStore:
             formatted_results = []
             if results and results['ids'] and results['ids'][0]:
                 for i in range(len(results['ids'][0])):
+                    retrieved_metadata = results['metadatas'][0][i]
+                    print(f"  [DEBUG][MemoryStore] Search result metadata for {results['ids'][0][i]}: {retrieved_metadata}")
                     formatted_results.append({
                         'id': results['ids'][0][i],
                         'content': results['documents'][0][i],
                         'embedding': results['embeddings'][0][i],
-                        'metadata': results['metadatas'][0][i],
+                        'metadata': retrieved_metadata,
                         'distance': results['distances'][0][i]
                     })
             return formatted_results
@@ -98,11 +101,13 @@ class MemoryStore:
             self.collection = self.client.get_or_create_collection(name=settings.CHROMA_COLLECTION_NAME)
             result = self.collection.get(ids=[chunk_id], include=['documents', 'embeddings', 'metadatas'])
             if result and result['ids'] and result['ids'][0]:
+                retrieved_metadata = result['metadatas'][0]
+                print(f"  [DEBUG][MemoryStore] Retrieved metadata for {chunk_id}: {retrieved_metadata}")
                 return {
                     'id': result['ids'][0],
                     'content': result['documents'][0],
                     'embedding': result['embeddings'][0],
-                    'metadata': result['metadatas'][0]
+                    'metadata': retrieved_metadata
                 }
             return {}
         except Exception as e:

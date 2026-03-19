@@ -10,7 +10,13 @@ class AssociativeNetwork:
         """
         self.graph = nx.Graph() # Nodes will be chunk_ids or entities/concepts
         self.entity_to_chunks = {} # Map entities/concepts to relevant chunk_ids
-        print("AssociativeNetwork initialized (placeholder). Ready for linking memories.")
+        
+        # Add core agent entities explicitly to the network
+        self.add_node("Zayar-Sama", "PERSON", {'name': "Zayar-Sama"})
+        self.add_node("TinaAide", "PERSON", {'name': "TinaAide"})
+        self.add_node("ShionAide", "PERSON", {'name': "ShionAide"})
+
+        print("AssociativeNetwork initialized with core agent entities. Ready for linking memories.")
 
     def add_node(self, node_id: str, node_type: str, attributes: Dict[str, Any] = None):
         """
@@ -70,6 +76,53 @@ class AssociativeNetwork:
         """
         return list(self.entity_to_chunks.get(entity, set()))
 
+    def calculate_node_centrality(self, centrality_type: str = "degree") -> Dict[str, float]:
+        """
+        Calculates centrality for all nodes in the graph.
+        Supported types: "degree", "betweenness", "pagerank".
+        """
+        if not self.graph.nodes():
+            return {}
+
+        if centrality_type == "degree":
+            return nx.degree_centrality(self.graph)
+        elif centrality_type == "betweenness":
+            return nx.betweenness_centrality(self.graph)
+        elif centrality_type == "pagerank":
+            # PageRank requires a non-empty graph and can handle disconnected components.
+            # If the graph is empty or has no edges, PageRank might not be meaningful or raise errors.
+            # We ensure a minimum number of nodes/edges or handle gracefully.
+            if self.graph.number_of_nodes() < 2 or self.graph.number_of_edges() == 0:
+                return {node: 1.0 / self.graph.number_of_nodes() if self.graph.number_of_nodes() > 0 else 0.0 for node in self.graph.nodes()}
+            return nx.pagerank(self.graph)
+        else:
+            raise ValueError(f"Unsupported centrality type: {centrality_type}")
+
+    def find_shortest_path(self, source: str, target: str, weight: str = None) -> List[str]:
+        """
+        Finds the shortest path between two nodes.
+        Returns a list of nodes in the path, or an empty list if no path exists.
+        If weight is specified, uses Dijkstra's algorithm, otherwise BFS.
+        """
+        if not self.graph.has_node(source) or not self.graph.has_node(target):
+            return []
+        try:
+            if weight:
+                return nx.shortest_path(self.graph, source=source, target=target, weight=weight)
+            else:
+                return nx.shortest_path(self.graph, source=source, target=target)
+        except nx.NetworkXNoPath:
+            return []
+
+    def get_all_simple_paths(self, source: str, target: str, cutoff: int = None) -> List[List[str]]:
+        """
+        Returns all simple paths between a source and a target node.
+        A simple path has no repeated nodes.
+        """
+        if not self.graph.has_node(source) or not self.graph.has_node(target):
+            return []
+        return list(nx.all_simple_paths(self.graph, source=source, target=target, cutoff=cutoff))
+
 # Example usage (for testing purposes)
 if __name__ == "__main__":
     associative_network = AssociativeNetwork()
@@ -96,3 +149,18 @@ if __name__ == "__main__":
     associative_network.add_edge("Zayar-Sama", "TinaAide", "collaborates_with", weight=0.8)
     print(f"Added direct link between Zayar-Sama and TinaAide.")
     print(f"Nodes related to 'Zayar-Sama' (depth 1): {associative_network.get_related_nodes('Zayar-Sama', depth=1)}")
+
+    print("\n--- Centrality Calculations ---")
+    print(f"Degree Centrality: {associative_network.calculate_node_centrality(centrality_type='degree')}")
+    print(f"Betweenness Centrality: {associative_network.calculate_node_centrality(centrality_type='betweenness')}")
+    print(f"PageRank: {associative_network.calculate_node_centrality(centrality_type='pagerank')}")
+
+    print("\n--- Path Finding ---")
+    path1 = associative_network.find_shortest_path("chunk_1", "TinaAide")
+    print(f"Shortest path from chunk_1 to TinaAide: {path1}")
+
+    path2 = associative_network.find_shortest_path("Zayar-Sama", "Memory Consolidation")
+    print(f"Shortest path from Zayar-Sama to Memory Consolidation: {path2}")
+
+    all_paths = associative_network.get_all_simple_paths("chunk_1", "chunk_2")
+    print(f"All simple paths from chunk_1 to chunk_2: {all_paths}")

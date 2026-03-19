@@ -10,9 +10,11 @@ from .working_memory import WorkingMemory
 from .memory_consolidation import MemoryConsolidation
 from .associative_network import AssociativeNetwork
 from config.settings import settings # Updated import path
+import networkx as nx # Added for associative strength calculations
 from src.core.sentiment_analyzer import SentimentAnalyzer
 from src.core.entity_extractor import EntityExtractor
 from src.core.context_tagger import ContextTagger
+from src.core.vividness_calculator import VividnessCalculator
 
 # Placeholder for NLTK if not globally downloaded
 # import nltk
@@ -40,6 +42,7 @@ class RetrievalManager:
         self.sentiment_analyzer = SentimentAnalyzer() # Initialize SentimentAnalyzer
         self.entity_extractor = EntityExtractor() # Initialize EntityExtractor
         self.context_tagger = ContextTagger() # Initialize ContextTagger
+        self.vividness_calculator = VividnessCalculator(self.sentiment_analyzer, self.entity_extractor, self.chunk_optimizer) # Initialize VividnessCalculator
         self.working_memory = WorkingMemory(capacity=settings.WORKING_MEMORY_CAPACITY)
         self.associative_network = AssociativeNetwork()
         self.memory_consolidation = MemoryConsolidation(
@@ -76,6 +79,14 @@ class RetrievalManager:
 
             # Named Entity Recognition
             all_entities = self.entity_extractor.extract_entities(chunk_content)
+            # Manually add known agent names if present in the chunk_content
+            if "Zayar-Sama" in chunk_content:
+                all_entities.append({'text': "Zayar-Sama", 'label': "PERSON"})
+            if "TinaAide" in chunk_content:
+                all_entities.append({'text': "TinaAide", 'label': "PERSON"})
+            if "ShionAide" in chunk_content:
+                all_entities.append({'text': "ShionAide", 'label': "PERSON"})
+
             relevant_entity_types = ["PERSON", "ORG", "GPE", "LOC", "PRODUCT", "EVENT"] # Define based on need
             associated_entities = self.entity_extractor.filter_entities_by_type(all_entities, relevant_entity_types)
 
@@ -88,11 +99,12 @@ class RetrievalManager:
                 "source_id": source_id,
                 "original_text_start_index": raw_text.find(chunk_content), # Simple approach, can be refined
                 "emotional_valence": emotional_valence, # Enhanced metadata
-                "vividness_score": 0.5, # Default, will be dynamically learned/adjusted (Enhanced metadata)
+                "vividness_score": self.vividness_calculator.calculate_initial_vividness(chunk_content), # Dynamically calculated (Enhanced metadata)
                 "event_sequence_id": event_sequence_id # Enhanced metadata
             }
             if associated_entities:
                 metadata["associated_entities"] = associated_entities
+                print(f"  [DEBUG][Ingest] Storing associated entities: {associated_entities}")
             if context_tags:
                 metadata["context_tags"] = context_tags
             self.memory_store.add_memory_chunk(chunk_id, chunk_content, embedding, metadata)
@@ -123,8 +135,10 @@ class RetrievalManager:
             return 0.0
 
     def _calculate_vividness_score(self, metadata: Dict[str, Any]) -> float:
-        # Placeholder: could be based on length, specific keywords, or learned over time
-        return metadata.get('vividness_score', 0.5)
+        initial_vividness = metadata.get('vividness_score', 0.5)
+        timestamp = metadata.get('timestamp', time.time()) # Use current time if timestamp is missing
+        print(f"  [DEBUG] Vividness - Initial from metadata: {initial_vividness:.4f}, Timestamp from metadata: {datetime.fromtimestamp(timestamp)}")
+        return self.vividness_calculator.apply_decay(initial_vividness, timestamp)
 
     def _calculate_emotional_saliency_score(self, metadata: Dict[str, Any]) -> float:
         # Directly use emotional_valence from metadata. Normalize -1 to 1 to 0 to 1 if needed
@@ -132,18 +146,66 @@ class RetrievalManager:
         return (valence + 1.0) / 2.0 # Normalize -1 to 1 to 0 to 1 range
 
     def _calculate_associative_strength_score(self, chunk_id: str, query_entities: List[str]) -> float:
-        # Conceptual: how strongly is this chunk connected to entities in the query via associative network
-        # For prototype, a simple count of shared entities or direct links
         score = 0.0
-        chunk_entities = self.memory_store.get_memory_by_id(chunk_id).get('metadata', {}).get('associated_entities', [])
-        shared_entities = set(chunk_entities).intersection(set(query_entities))
-        score += len(shared_entities) * 0.2 # Simple heuristic for shared entities
         
-        # Further, check direct links in associative network if entities from query are linked to chunk_id
+        # Ensure the chunk_id exists in the graph for centrality and path calculations
+        if not self.associative_network.graph.has_node(chunk_id):
+            print(f"  [DEBUG][AssocStrength] Chunk ID {chunk_id[:8]}... not in associative network. Returning 0.0.")
+            return 0.0 # No associative strength if chunk not in network
+
+        print(f"  [DEBUG][AssocStrength] Calculating for chunk {chunk_id[:8]}..., Query entities: {query_entities}")
+
+        # 1. Direct Links / Shared Entities (Existing Logic, refined)
+        chunk_metadata = self.memory_store.get_memory_by_id(chunk_id).get('metadata', {})
+        chunk_entities = chunk_metadata.get('associated_entities', [])
+        shared_entities = set(chunk_entities).intersection(set(query_entities))
+        shared_entity_contribution = len(shared_entities) * settings.ASSOCIATIVE_SHARED_ENTITY_WEIGHT
+        score += shared_entity_contribution
+        print(f"  [DEBUG][AssocStrength]   Shared entities: {shared_entities}, Contribution: {shared_entity_contribution:.4f}")
+
+        # 2. Path-finding Contribution
+        path_score = 0.0
+        for q_entity in query_entities:
+            if self.associative_network.graph.has_node(q_entity):
+                try:
+                    # Shortest path: shorter paths mean stronger association
+                    path_length = nx.shortest_path_length(self.associative_network.graph, source=chunk_id, target=q_entity)
+                    # Normalize path length to a score (e.g., inverse of length, clamped)
+                    # Example: path_length 1 -> 1.0; 2 -> 0.5; 3 -> 0.33; 4 -> 0.25 (for max_path_length_considered=4)
+                    entity_path_contribution = max(0.0, 1.0 - ((path_length - 1) / (settings.ASSOCIATIVE_MAX_PATH_LENGTH_CONSIDERED -1 ))) if settings.ASSOCIATIVE_MAX_PATH_LENGTH_CONSIDERED > 1 else 1.0
+                    path_score += entity_path_contribution
+                    print(f"  [DEBUG][AssocStrength]     Path from {chunk_id[:8]}... to {q_entity}: Length={path_length}, Individual Path Contribution: {entity_path_contribution:.4f}")
+                except nx.NetworkXNoPath:
+                    print(f"  [DEBUG][AssocStrength]     No path from {chunk_id[:8]}... to {q_entity}")
+                    pass # No path, no score for this entity
+        
+        path_contribution = path_score * settings.ASSOCIATIVE_PATH_WEIGHT
+        score += path_contribution
+        print(f"  [DEBUG][AssocStrength]   Total Path Score: {path_score:.4f}, Total Path Contribution: {path_contribution:.4f}")
+
+
+        # 3. Centrality Bonus (PageRank for global importance)
+        centrality_scores = self.associative_network.calculate_node_centrality(centrality_type="pagerank")
+        chunk_pagerank = centrality_scores.get(chunk_id, 0.0)
+        pagerank_contribution = chunk_pagerank * settings.ASSOCIATIVE_PAGERANK_WEIGHT
+        score += pagerank_contribution
+        print(f"  [DEBUG][AssocStrength]   Chunk PageRank: {chunk_pagerank:.4f}, PageRank Contribution: {pagerank_contribution:.4f}")
+
+        # Combine direct edge weights as before, but with updated logic if dynamic weights were added
+        direct_link_weight_contribution = 0.0
         for entity in query_entities:
             if self.associative_network.graph.has_edge(chunk_id, entity):
-                score += self.associative_network.graph[chunk_id][entity].get('weight', 0.5)
-        return min(1.0, score) # Clamp score
+                link_weight = self.associative_network.graph[chunk_id][entity].get('weight', 0.0)
+                direct_link_weight_contribution += link_weight * settings.ASSOCIATIVE_DIRECT_LINK_WEIGHT
+                print(f"  [DEBUG][AssocStrength]   Direct link {chunk_id[:8]}...-{entity} with weight {link_weight:.2f}, Contribution: {link_weight * settings.ASSOCIATIVE_DIRECT_LINK_WEIGHT:.4f}")
+        score += direct_link_weight_contribution
+        print(f"  [DEBUG][AssocStrength]   Total Direct Link Weight Contribution: {direct_link_weight_contribution:.4f}")
+
+        final_score_unclamped = score
+        # Ensure score is clamped between 0 and 1
+        score = max(0.0, min(1.0, score))
+        print(f"  [DEBUG][AssocStrength]   Final Associative Score (Unclamped): {final_score_unclamped:.4f}, Clamped: {score:.4f}")
+        return score
 
     def retrieve_relevant_memories(self, query: str, n_results: int = 10) -> List[Dict[str, Any]]:
         """
@@ -165,12 +227,22 @@ class RetrievalManager:
         for item in self.working_memory.get_recent_items():
             # For prototype, a simple content match or high recency for WM items
             if query.lower() in item.get('content', '').lower():
+                # For working memory items, we simulate some metadata for consistent scoring
+                # A proper implementation might store more detailed metadata in WorkingMemory itself
+                wm_metadata = {
+                    "source_id": "working_memory",
+                    "timestamp": item['timestamp'], # Use the actual timestamp from WorkingMemory
+                    "importance_score": 1.0, # High importance for active working memory
+                    "emotional_valence": self.sentiment_analyzer.analyze_sentiment(item['content']).get('compound', 0.0),
+                    "vividness_score": self.vividness_calculator.calculate_initial_vividness(item['content']), # Calculate initial vividness for WM
+                    "event_sequence_id": str(uuid.uuid4()) # Assign a unique event ID
+                }
                 working_memory_results.append({
                     'id': f"wm_{str(uuid.uuid4())}", # Temporary ID for WM items
                     'content': item['content'],
-                    'metadata': {"source_id": "working_memory", "timestamp": item['timestamp'], "importance_score": 1.0}, # High importance
+                    'metadata': wm_metadata,
                     'embedding': self.embedding_manager.get_embedding(item['content']), # Embed WM item for scoring
-                    'score': 1.0 # High score for working memory match
+                    'score': 1.0 # High score for working memory match (will be re-scored)
                 })
         # For now, append working memory results. Later, we'll integrate scoring better.
         all_retrieved_chunks_pre_scoring = working_memory_results # Start with WM, then add long-term
@@ -183,8 +255,10 @@ class RetrievalManager:
         # Further activate memories via AssociativeNetwork using query entities
         # Extract entities from the query using the new EntityExtractor
         query_all_entities = self.entity_extractor.extract_entities(query)
+        print(f"  [DEBUG][RetrievalManager] Raw query entities from EntityExtractor: {query_all_entities}")
         # Use relevant entity types from settings for filtering query entities
         query_entities = self.entity_extractor.filter_entities_by_type(query_all_entities, settings.RELEVANT_ENTITY_TYPES)
+        print(f"  [DEBUG][RetrievalManager] Query entities for associative score: {query_entities}")
         activated_chunk_ids_from_associative_net = set()
         for entity in query_entities:
             activated_chunk_ids_from_associative_net.update(self.associative_network.get_chunks_by_entity(entity))
