@@ -144,4 +144,150 @@ This document details the step-by-step implementation plan for the AI Agent Memo
     1.  [x] Create `src/core/working_memory.py` for the Sensory Input Buffer.
     2.  [x] Create `src/core/memory_consolidation.py` for the Memory Consolidation background process (conceptual placeholder).
     3.  [x] Create `src/core/associative_network.py` for the Associative Network/Knowledge Graph.
-    4.  [x] Update `src/core/__init__.py` to include the new modules.\n    5.  [x] Update `config/settings.py` with new settings (`WORKING_MEMORY_CAPACITY`, NLP models, decay rates, associative collection name).\n    6.  [x] Update `src/core/memory_store.py` to prepare for richer metadata and add associative collection.\n    7.  [x] Update `src/core/retrieval_manager.py` to integrate new components and flows for ingestion and retrieval.\n    8.  [x] Update `src/core/chunk_optimizer.py` to reflect enhancements for dynamic synthesis (conceptual placeholder).\n    9.  [x] Update `README.md` with information about the human-like memory prototype.\n    10. [x] Update `Shion.md` with details of this prototype implementation.
+    4.  [x] Update `src/core/__init__.py` to include the new modules.    
+    5.  [x] Update `config/settings.py` with new settings (`WORKING_MEMORY_CAPACITY`, NLP models, decay rates, associative collection name).    
+    6.  [x] Update `src/core/memory_store.py` to prepare for richer metadata and add associative collection.    
+    7.  [x] Update `src/core/retrieval_manager.py` to integrate new components and flows for ingestion and retrieval.    
+    8.  [x] Update `src/core/chunk_optimizer.py` to reflect enhancements for dynamic synthesis (conceptual placeholder).
+    9.  [x] Update `README.md` with information about the human-like memory prototype.
+    10. [x] Update `Shion.md` with details of this prototype implementation.
+
+## 11. Placeholder Functions and Conceptual Implementations - Replacement Plan
+
+- **Purpose:** Replace all placeholder functions and conceptual implementations with actual production-ready logic to improve memory quality, retrieval accuracy, and system performance.
+- **Current Status:** All core functionality implemented with working placeholders. System is functional but uses basic heuristics.
+- **Implementation Strategy:** Phased approach prioritizing highest-impact improvements.
+
+### Phase 1: NLP Processing Functions (High Priority - Highest Impact)
+
+**1. Sentiment Analysis (`_simple_sentiment_analysis`)**
+- **Current:** Basic keyword counting heuristic (positive/negative word lists)
+- **Target:** Real sentiment analysis model
+- **Options:**
+  - VADER (fast, rule-based, good for social media text)
+  - Transformer-based models (DistilBERT-sentiment, more accurate but slower)
+  - Hybrid approach: VADER for speed, transformers for complex cases
+- **Implementation Steps:**
+  - Add `vaderSentiment` or `transformers` to requirements.txt
+  - Create `SentimentAnalyzer` class in `src/core/`
+  - Update `_simple_sentiment_analysis` to use real model
+  - Add configuration options for model selection
+
+**2. Named Entity Recognition (`_simple_entity_extraction`)**
+- **Current:** Capitalized word detection heuristic
+- **Target:** Proper NER model for person, organization, location extraction
+- **Options:**
+  - spaCy with en_core_web_sm (fast, accurate for common entities)
+  - HuggingFace NER models (more flexible, better for domain-specific)
+  - Custom fine-tuned model for AI/agent domain
+- **Implementation Steps:**
+  - Add `spacy` to requirements.txt, download en_core_web_sm
+  - Create `EntityExtractor` class in `src/core/`
+  - Update `_simple_entity_extraction` to use spaCy NER
+  - Add entity type filtering (PERSON, ORG, GPE, etc.)
+
+**3. Context Tag Extraction (`_simple_context_tag_extraction`)**
+- **Current:** Hardcoded keyword matching for basic categories
+- **Target:** ML-based topic classification or zero-shot labeling
+- **Options:**
+  - Zero-shot classification (BART/BERT-based)
+  - Fine-tuned topic model for memory categories
+  - Rule-based with ML enhancement
+- **Implementation Steps:**
+  - Add `transformers` to requirements.txt
+  - Create `ContextTagger` class in `src/core/`
+  - Define standard memory categories (personal, technical, emotional, etc.)
+  - Update `_simple_context_tag_extraction` to use zero-shot classification
+
+### Phase 2: Scoring and Weighting Functions (Medium Priority)
+
+**4. Vividness Score Calculation (`_calculate_vividness_score`)**
+- **Current:** Returns static 0.5 for all memories
+- **Target:** Dynamic calculation based on content richness and memorability
+- **Factors to Consider:**
+  - Text length and complexity
+  - Emotional word density
+  - Specificity (proper nouns, numbers, details)
+  - Sensory language (visual, auditory, etc.)
+  - Recency of access (decay over time)
+- **Implementation Steps:**
+  - Create content analysis functions
+  - Implement scoring algorithm combining multiple factors
+  - Add vividness decay over time
+
+**5. Associative Strength Score (`_calculate_associative_strength_score`)**
+- **Current:** Simple shared entity counting (0.2 per shared entity)
+- **Target:** Graph-based centrality and semantic similarity measures
+- **Options:**
+  - Graph centrality algorithms (PageRank, betweenness)
+  - Path-based similarity (shortest path weights)
+  - Semantic similarity of connected concepts
+- **Implementation Steps:**
+  - Enhance `AssociativeNetwork` with centrality calculations
+  - Implement path-finding algorithms
+  - Add semantic similarity scoring
+
+### Phase 3: Advanced Features and Optimizations (Low Priority)
+
+**6. Working Memory Enhancement**
+- **Current:** Simple substring matching for retrieval
+- **Target:** Semantic similarity using embeddings
+- **Implementation Steps:**
+  - Use embedding similarity instead of string matching
+  - Add temporal relevance scoring
+  - Implement working memory consolidation triggers
+
+**7. Memory Consolidation Implementation**
+- **Current:** Empty placeholder class
+- **Target:** Full summarization and compression logic
+- **Implementation Steps:**
+  - Implement background consolidation process
+  - Add summarization models (extractive/abstractive)
+  - Create compression algorithms for long-term storage
+
+**8. Dynamic Synthesis/Summarization**
+- **Current:** Conceptual placeholder in chunk optimization
+- **Target:** Text summarization for context window management
+- **Options:**
+  - Extractive summarization (sentence selection)
+  - Abstractive summarization (content generation)
+  - Hybrid approaches
+- **Implementation Steps:**
+  - Add summarization models to requirements
+  - Implement synthesis logic in `ChunkOptimizer`
+  - Add configuration for summarization aggressiveness
+
+### Technical Considerations
+
+**Performance Impact:**
+- NLP models add latency (50-500ms per operation)
+- Consider async processing for heavy computations
+- Implement caching for frequently accessed metadata
+- Add model warm-up and batch processing where possible
+
+**Dependency Management:**
+- Use lightweight models by default (DistilBERT, spaCy small models)
+- Provide configuration options for model selection
+- Include fallback mechanisms for offline/missing models
+
+**Configuration Options:**
+- Add model selection parameters to `settings.py`
+- Include performance vs accuracy trade-offs
+- Provide easy switching between simple/fast vs complex/accurate modes
+
+**Testing and Validation:**
+- Create benchmark tests comparing old vs new implementations
+- Validate accuracy improvements on sample datasets
+- Monitor performance impact on retrieval latency
+
+### Implementation Priority Rationale
+
+1. **NLP Functions (Phase 1)**: Highest impact - directly affect memory quality and retrieval accuracy
+2. **Scoring Functions (Phase 2)**: Medium impact - improve ranking and recall patterns
+3. **Advanced Features (Phase 3)**: Lower priority - enhance capabilities but system works without them
+
+**Next Steps:**
+- Begin with Phase 1, starting with sentiment analysis (simplest to implement)
+- Create separate branches for each major component
+- Add comprehensive tests for each replacement
+- Update documentation and examples accordingly
