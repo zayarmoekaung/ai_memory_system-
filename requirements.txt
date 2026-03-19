@@ -115,3 +115,4 @@ websockets==16.0
 zipp==3.23.0
 vaderSentiment
 spacy
+transformers

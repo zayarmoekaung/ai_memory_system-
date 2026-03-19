@@ -12,6 +12,7 @@ from .associative_network import AssociativeNetwork
 from config.settings import settings # Updated import path
 from src.core.sentiment_analyzer import SentimentAnalyzer
 from src.core.entity_extractor import EntityExtractor
+from src.core.context_tagger import ContextTagger
 
 # Placeholder for NLTK if not globally downloaded
 # import nltk
@@ -24,15 +25,7 @@ from src.core.entity_extractor import EntityExtractor
 # NOTE: _simple_sentiment_analysis has been replaced by SentimentAnalyzer class.
 # These simple placeholder functions will be replaced by dedicated NLP classes in Phase 1.
 
-def _simple_context_tag_extraction(text: str) -> List[str]:
-    # Very basic: check for predefined keywords
-    text_lower = text.lower()
-    tags = []
-    if "memory system" in text_lower or "ai agent" in text_lower: tags.append("ai_project")
-    if "weather" in text_lower or "forecast" in text_lower: tags.append("weather")
-    if "meeting" in text_lower or "schedule" in text_lower: tags.append("calendar")
-    return tags
-
+# DEPRECATED: _simple_context_tag_extraction has been replaced by ContextTagger class.
 class RetrievalManager:
     def __init__(self):
         """
@@ -46,6 +39,7 @@ class RetrievalManager:
         
         self.sentiment_analyzer = SentimentAnalyzer() # Initialize SentimentAnalyzer
         self.entity_extractor = EntityExtractor() # Initialize EntityExtractor
+        self.context_tagger = ContextTagger() # Initialize ContextTagger
         self.working_memory = WorkingMemory(capacity=settings.WORKING_MEMORY_CAPACITY)
         self.associative_network = AssociativeNetwork()
         self.memory_consolidation = MemoryConsolidation(
@@ -85,8 +79,8 @@ class RetrievalManager:
             relevant_entity_types = ["PERSON", "ORG", "GPE", "LOC", "PRODUCT", "EVENT"] # Define based on need
             associated_entities = self.entity_extractor.filter_entities_by_type(all_entities, relevant_entity_types)
 
-            # Context Tag Extraction (placeholder for now)
-            context_tags = _simple_context_tag_extraction(chunk_content)
+            # Context Tag Extraction
+            context_tags = self.context_tagger.tag_context(chunk_content)
 
             metadata = {
                 "timestamp": current_timestamp,

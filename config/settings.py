@@ -31,6 +31,12 @@ class Settings(BaseSettings):
     MEMORY_CONSOLIDATION_INTERVAL_SECONDS: int = 3600 # How often background consolidation runs (e.g., 1 hour)
 
     # NLP Models for Metadata Extraction (placeholders for now)
+    CONTEXT_TAGGER_MODEL: str = "facebook/bart-large-mnli"
+    DEFAULT_CONTEXT_LABELS: list[str] = [
+        "personal reflection", "technical detail", "task management",
+        "emotional state", "learning experience", "social interaction",
+        "planning", "decision making", "environmental observation"
+    ]
     SENTIMENT_ANALYZER_MODEL: str = "vader" # For vaderSentiment library
     SENTIMENT_MODEL_NAME: str = "distilbert-base-uncased-sentiment" # Example sentiment model
     NER_MODEL_NAME: str = "en_core_web_sm" # For spaCy
