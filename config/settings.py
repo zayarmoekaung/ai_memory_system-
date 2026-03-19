@@ -31,6 +31,7 @@ class Settings(BaseSettings):
     MEMORY_CONSOLIDATION_INTERVAL_SECONDS: int = 3600 # How often background consolidation runs (e.g., 1 hour)
 
     # NLP Models for Metadata Extraction (placeholders for now)
+    SENTIMENT_ANALYZER_MODEL: str = "vader" # For vaderSentiment library
     SENTIMENT_MODEL_NAME: str = "distilbert-base-uncased-sentiment" # Example sentiment model
     ENTITY_EXTRACTION_MODEL_NAME: str = "dslim/bert-base-NER" # Example NER model
     
