@@ -31,17 +31,6 @@ def _simple_sentiment_analysis(text: str) -> float:
     if negative_count > positive_count: return -0.8
     return 0.0 # Neutral
 
-def _simple_entity_extraction(text: str) -> List[str]:
-    # A very basic heuristic: capitalized words not at start of sentence, or known entities
-    # In a real system, use spaCy or a dedicated NER model
-    words = text.split()
-    entities = set()
-    for word in words:
-        cleaned_word = word.strip("',.!?;:""''")
-        if cleaned_word and cleaned_word[0].isupper() and cleaned_word.lower() not in ["the", "a", "an", "and", "is", "are", "was", "were", "i", "you", "he", "she", "it", "we", "they", "this", "that", "for", "on", "in", "at", "with", "from", "by"]:
-            entities.add(cleaned_word)
-    return list(entities)
-
 def _simple_context_tag_extraction(text: str) -> List[str]:
     # Very basic: check for predefined keywords
     text_lower = text.lower()
