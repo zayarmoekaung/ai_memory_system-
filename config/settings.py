@@ -33,6 +33,8 @@ class Settings(BaseSettings):
     # NLP Models for Metadata Extraction (placeholders for now)
     SENTIMENT_ANALYZER_MODEL: str = "vader" # For vaderSentiment library
     SENTIMENT_MODEL_NAME: str = "distilbert-base-uncased-sentiment" # Example sentiment model
+    NER_MODEL_NAME: str = "en_core_web_sm" # For spaCy
+    RELEVANT_ENTITY_TYPES: list[str] = ["PERSON", "ORG", "GPE", "LOC", "PRODUCT", "EVENT"] # Default entity types for extraction
     ENTITY_EXTRACTION_MODEL_NAME: str = "dslim/bert-base-NER" # Example NER model
     
     # Decay rates for dynamic scores (conceptual, for future tuning)

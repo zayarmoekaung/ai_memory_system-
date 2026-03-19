@@ -187,7 +187,10 @@ class RetrievalManager:
         all_retrieved_chunks_pre_scoring.extend(raw_retrieved_chunks)
 
         # Further activate memories via AssociativeNetwork using query entities
-        query_entities = _simple_entity_extraction(query) # Extract entities from the query
+        # Extract entities from the query using the new EntityExtractor
+        query_all_entities = self.entity_extractor.extract_entities(query)
+        # Use relevant entity types from settings for filtering query entities
+        query_entities = self.entity_extractor.filter_entities_by_type(query_all_entities, settings.RELEVANT_ENTITY_TYPES)
         activated_chunk_ids_from_associative_net = set()
         for entity in query_entities:
             activated_chunk_ids_from_associative_net.update(self.associative_network.get_chunks_by_entity(entity))
