@@ -10,6 +10,8 @@ from .working_memory import WorkingMemory
 from .memory_consolidation import MemoryConsolidation
 from .associative_network import AssociativeNetwork
 from config.settings import settings # Updated import path
+from src.core.sentiment_analyzer import SentimentAnalyzer
+from src.core.entity_extractor import EntityExtractor
 
 # Placeholder for NLTK if not globally downloaded
 # import nltk
@@ -19,17 +21,8 @@ from config.settings import settings # Updated import path
 # except LookupError:
 #     nltk.download('punkt')
 
-# Placeholder for basic sentiment and NER if full NLP models are not used directly in prototype
-def _simple_sentiment_analysis(text: str) -> float:
-    # A very basic heuristic: count positive/negative words
-    positive_keywords = ["good", "great", "excellent", "happy", "love", "nice", "perfect"]
-    negative_keywords = ["bad", "terrible", "poor", "sad", "hate", "error", "issue"]
-    text_lower = text.lower()
-    positive_count = sum(text_lower.count(k) for k in positive_keywords)
-    negative_count = sum(text_lower.count(k) for k in negative_keywords)
-    if positive_count > negative_count: return 0.8
-    if negative_count > positive_count: return -0.8
-    return 0.0 # Neutral
+# NOTE: _simple_sentiment_analysis has been replaced by SentimentAnalyzer class.
+# These simple placeholder functions will be replaced by dedicated NLP classes in Phase 1.
 
 def _simple_context_tag_extraction(text: str) -> List[str]:
     # Very basic: check for predefined keywords
@@ -51,6 +44,8 @@ class RetrievalManager:
         self.chunk_optimizer = ChunkOptimizer()
         self.chunk_optimizer.set_tokenizer(self.embedding_manager.get_tokenizer())
         
+        self.sentiment_analyzer = SentimentAnalyzer() # Initialize SentimentAnalyzer
+        self.entity_extractor = EntityExtractor() # Initialize EntityExtractor
         self.working_memory = WorkingMemory(capacity=settings.WORKING_MEMORY_CAPACITY)
         self.associative_network = AssociativeNetwork()
         self.memory_consolidation = MemoryConsolidation(
@@ -81,9 +76,16 @@ class RetrievalManager:
             chunk_id = str(uuid.uuid4())
             embedding = self.embedding_manager.get_embedding(chunk_content)
 
-            # Placeholder for NLP extraction (can be replaced with actual model calls)
-            emotional_valence = _simple_sentiment_analysis(chunk_content)
-            associated_entities = _simple_entity_extraction(chunk_content)
+            # Sentiment Analysis
+            sentiment_scores = self.sentiment_analyzer.analyze_sentiment(chunk_content)
+            emotional_valence = sentiment_scores['compound']
+
+            # Named Entity Recognition
+            all_entities = self.entity_extractor.extract_entities(chunk_content)
+            relevant_entity_types = ["PERSON", "ORG", "GPE", "LOC", "PRODUCT", "EVENT"] # Define based on need
+            associated_entities = self.entity_extractor.filter_entities_by_type(all_entities, relevant_entity_types)
+
+            # Context Tag Extraction (placeholder for now)
             context_tags = _simple_context_tag_extraction(chunk_content)
 
             metadata = {
