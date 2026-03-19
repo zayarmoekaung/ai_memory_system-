@@ -8,8 +8,8 @@ This document details the step-by-step implementation plan for the AI Agent Memo
 - **Implementation Steps:**
     1.  [x] Ensure Python 3.9+ is installed.
     2.  [x] Navigate to the `ai_memory_system/` directory.
-    3.  [ ] Create and activate a virtual environment (`python -m venv venv && source venv/bin/activate`).
-    4.  [ ] Install dependencies from `requirements.txt` (`pip install -r requirements.txt`).
+    3.  [x] Create and activate a virtual environment (`python -m venv venv && source venv/bin/activate`).
+    4.  [x] Install dependencies from `requirements.txt` (`pip install -r requirements.txt`).
 
 ## 2. Configuration Management (`config/settings.py`)
 
@@ -169,9 +169,9 @@ This document details the step-by-step implementation plan for the AI Agent Memo
   - Hybrid approach: VADER for speed, transformers for complex cases
 - **Implementation Steps:**
   - [x] Add `vaderSentiment` to requirements.txt
-  - Create `SentimentAnalyzer` class in `src/core/`
-  - Update `_simple_sentiment_analysis` to use real model
-  - Add configuration options for model selection
+  - [x] Create `SentimentAnalyzer` class in `src/core/`
+  - [x] Update `_simple_sentiment_analysis` to use real model
+  - [x] Add configuration options for model selection
 
 **2. Named Entity Recognition (`_simple_entity_extraction`)**
 - **Current:** Capitalized word detection heuristic
