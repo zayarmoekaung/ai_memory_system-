@@ -79,17 +79,14 @@ class RetrievalManager:
 
             # Named Entity Recognition
             all_entities = self.entity_extractor.extract_entities(chunk_content)
-            # Manually add known agent names if present in the chunk_content
-            if "Zayar-Sama" in chunk_content:
-                all_entities.append({'text': "Zayar-Sama", 'label': "PERSON"})
-            if "TinaAide" in chunk_content:
-                all_entities.append({'text': "TinaAide", 'label': "PERSON"})
-            if "ShionAide" in chunk_content:
-                all_entities.append({'text': "ShionAide", 'label': "PERSON"})
-
+            
             relevant_entity_types = ["PERSON", "ORG", "GPE", "LOC", "PRODUCT", "EVENT"] # Define based on need
-            associated_entities = self.entity_extractor.filter_entities_by_type(all_entities, relevant_entity_types)
-
+            print("[DEBUG] filtered_entities:", all_entities)
+            print("[DEBUG] types:", [type(e) for e in all_entities])
+            associated_entities = [
+                e.lower()
+                for e in self.entity_extractor.filter_entities_by_type(all_entities, relevant_entity_types)
+            ]
             # Context Tag Extraction
             context_tags = self.context_tagger.tag_context(chunk_content)
 
@@ -114,10 +111,6 @@ class RetrievalManager:
                 self.associative_network.link_chunk_to_entities(chunk_id, associated_entities)
 
         print(f"Ingested {len(chunks)} memory chunks from source: {source_id}")
-
-        # Optional: Trigger consolidation from working memory (e.g., after a few turns or on a timer)
-        # For prototype, this might be called explicitly or through a simple loop
-        # self.memory_consolidation.process_working_memory_for_consolidation(self.working_memory.get_recent_items())
 
     def _calculate_recency_score(self, timestamp: float) -> float:
         now = time.time()
@@ -207,7 +200,7 @@ class RetrievalManager:
         print(f"  [DEBUG][AssocStrength]   Final Associative Score (Unclamped): {final_score_unclamped:.4f}, Clamped: {score:.4f}")
         return score
 
-    def retrieve_relevant_memories(self, query: str, n_results: int = 10) -> List[Dict[str, Any]]:
+    def retrieve_relevant_memories(self, query: str, n_results: int = 10, include_working_memory: bool = False) -> List[Dict[str, Any]]:
         """
         Retrieves relevant memories based on a query, combining vector similarity with enhanced weighted scoring.
 
@@ -224,26 +217,27 @@ class RetrievalManager:
         # 1. Initial Activation (Working Memory First)
         # Prioritize working memory for very recent and active items
         working_memory_results = []
-        for item in self.working_memory.get_recent_items():
-            # For prototype, a simple content match or high recency for WM items
-            if query.lower() in item.get('content', '').lower():
-                # For working memory items, we simulate some metadata for consistent scoring
-                # A proper implementation might store more detailed metadata in WorkingMemory itself
-                wm_metadata = {
-                    "source_id": "working_memory",
-                    "timestamp": item['timestamp'], # Use the actual timestamp from WorkingMemory
-                    "importance_score": 1.0, # High importance for active working memory
-                    "emotional_valence": self.sentiment_analyzer.analyze_sentiment(item['content']).get('compound', 0.0),
-                    "vividness_score": self.vividness_calculator.calculate_initial_vividness(item['content']), # Calculate initial vividness for WM
-                    "event_sequence_id": str(uuid.uuid4()) # Assign a unique event ID
-                }
-                working_memory_results.append({
-                    'id': f"wm_{str(uuid.uuid4())}", # Temporary ID for WM items
-                    'content': item['content'],
-                    'metadata': wm_metadata,
-                    'embedding': self.embedding_manager.get_embedding(item['content']), # Embed WM item for scoring
-                    'score': 1.0 # High score for working memory match (will be re-scored)
-                })
+        if include_working_memory:
+            for item in self.working_memory.get_recent_items():
+                # For prototype, a simple content match or high recency for WM items
+                if query.lower() in item.get('content', '').lower():
+                    # For working memory items, we simulate some metadata for consistent scoring
+                    # A proper implementation might store more detailed metadata in WorkingMemory itself
+                    wm_metadata = {
+                        "source_id": "working_memory",
+                        "timestamp": item['timestamp'], # Use the actual timestamp from WorkingMemory
+                        "importance_score": 1.0, # High importance for active working memory
+                        "emotional_valence": self.sentiment_analyzer.analyze_sentiment(item['content']).get('compound', 0.0),
+                        "vividness_score": self.vividness_calculator.calculate_initial_vividness(item['content']), # Calculate initial vividness for WM
+                        "event_sequence_id": str(uuid.uuid4()) # Assign a unique event ID
+                    }
+                    working_memory_results.append({
+                        'id': f"wm_{str(uuid.uuid4())}", # Temporary ID for WM items
+                        'content': item['content'],
+                        'metadata': wm_metadata,
+                        'embedding': self.embedding_manager.get_embedding(item['content']), # Embed WM item for scoring
+                        'score': 1.0 # High score for working memory match (will be re-scored)
+                    })
         # For now, append working memory results. Later, we'll integrate scoring better.
         all_retrieved_chunks_pre_scoring = working_memory_results # Start with WM, then add long-term
 
@@ -257,7 +251,10 @@ class RetrievalManager:
         query_all_entities = self.entity_extractor.extract_entities(query)
         print(f"  [DEBUG][RetrievalManager] Raw query entities from EntityExtractor: {query_all_entities}")
         # Use relevant entity types from settings for filtering query entities
-        query_entities = self.entity_extractor.filter_entities_by_type(query_all_entities, settings.RELEVANT_ENTITY_TYPES)
+        query_entities = [
+            e.lower()
+            for e in self.entity_extractor.filter_entities_by_type(query_all_entities, settings.RELEVANT_ENTITY_TYPES)
+        ]
         print(f"  [DEBUG][RetrievalManager] Query entities for associative score: {query_entities}")
         activated_chunk_ids_from_associative_net = set()
         for entity in query_entities:
